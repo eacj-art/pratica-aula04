@@ -1,0 +1,25 @@
+# US-02 — Montar o carrinho e escolher a entrega
+
+**Como** cliente da Vitrine, **quero** montar meu carrinho e escolher a entrega **para** saber quanto vou pagar antes de finalizar o pedido.
+
+Time: Checkout · Prioridade: alta
+
+## Regras de negócio
+
+- **R1.** Cada produto do catálogo tem um botão "Adicionar ao carrinho". Cada clique adiciona uma unidade do produto.
+- **R2.** O carrinho mostra, para cada produto, o nome, a quantidade e o valor (preço × quantidade). A quantidade pode ser aumentada ou diminuída; quando chega a zero, o produto sai do carrinho.
+- **R3.** Com o carrinho vazio, aparece a mensagem "Seu carrinho está vazio." e o total do pedido é R$ 0,00.
+- **R4.** O cliente escolhe uma entre três entregas: Econômica (R$ 5,00, até 7 dias úteis), Padrão (R$ 20,00, até 4 dias úteis) e Expressa (R$ 30,00, 1 dia útil). Enquanto nenhuma for escolhida, o frete aparece como "—" e não entra no total. Com o carrinho vazio, o frete não é cobrado.
+- **R5.** O resumo do pedido mostra Produtos, Desconto, Frete e Total, em que Total = Produtos − Desconto + Frete.
+- **R6.** O link "Esvaziar carrinho" remove todos os produtos, a entrega escolhida e o cupom aplicado.
+
+## Critérios de aceite
+
+- **CA1.** Dado o carrinho vazio, quando adiciono 1 "Vaso de cerâmica Terra" (R$ 40,00) e 1 "Almofada de linho cru" (R$ 60,00), sem escolher entrega, então Produtos é R$ 100,00, o Frete aparece como "—" e o Total é R$ 100,00.
+- **CA2.** Dado um carrinho com 2 "Luminária de mesa Aurora", quando diminuo a quantidade duas vezes, então a luminária sai do carrinho e aparece "Seu carrinho está vazio.".
+- **CA3.** Dado um carrinho com R$ 100,00 em produtos, quando escolho a entrega Expressa, então o Frete é R$ 30,00 e o Total é R$ 130,00.
+- **CA4.** Dado o carrinho vazio, quando escolho uma entrega, então o Total continua R$ 0,00.
+
+## Fora do escopo
+
+Cupom de desconto (US-01), pagamento e finalização do pedido, cálculo de frete por CEP.
