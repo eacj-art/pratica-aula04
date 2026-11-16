@@ -1,0 +1,919 @@
+<meta charset="utf-8">
+<title>Claude testando a tela</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap">
+<style>
+/* Layout: caderno de laboratório, igual ao guia do encontro 1. Texto em coluna de leitura; bancadas ocupam a largura toda.
+   Cores e tipografia do CESAR Design System, com tema escuro derivado. */
+:root{
+  --papel:#F3F2EF; --superficie:#FFFFFF; --superficie-2:#EFEDEA; --superficie-3:#E6E4E0;
+  --tinta:#0C0B0A; --texto:#2A2825; --tinta-2:#403E3B; --tinta-3:#5C5955;
+  --linha:#DEDBD7; --linha-forte:#A5A19C;
+  --marca:#FF6002; --marca-tx:#DD3805; --marca-forte:#B32C04; --marca-suave:#FFF2EB;
+  --selo-bg:#FFF2EB; --selo-tx:#B32C04; --btn-bg:#DD3805; --btn-tx:#FFFFFF; --sobre-marca:#FFFFFF;
+  --erro:#E23A2E; --erro-suave:#FCEBEA; --aviso:#F5A623; --aviso-suave:#FEF4E1;
+  --certo:#1F9D55; --certo-suave:#E7F6EE; --ia:#5C5955;
+ 
+  --sombra:0 4px 12px rgba(12,11,10,.08),0 2px 4px rgba(12,11,10,.04);
+  --f-display:"DM Sans","Helvetica Neue",Arial,sans-serif;
+  --f-texto:"DM Sans","Helvetica Neue",Arial,sans-serif;
+  --f-codigo:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  --raio:12px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+body{background:var(--papel);color:var(--texto);font-family:var(--f-texto);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--papel)}
+a{color:var(--marca-tx);text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--marca);outline-offset:2px;border-radius:4px}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0;color:var(--tinta)}
+h2{font-size:clamp(1.85rem,3.6vw,2.6rem);font-weight:800;letter-spacing:-.015em}
+h3{font-size:1.25rem;font-weight:700}
+h4{font-size:1.05rem;font-weight:700}
+p{margin:0}
+code,pre{font-family:var(--f-codigo)}
+:not(pre)>code{font-size:.86em;background:var(--superficie-2);border:1px solid var(--linha);padding:.05em .35em;border-radius:5px;overflow-wrap:anywhere}
+.wrap{max-width:1140px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.prosa{max-width:68ch;display:flex;flex-direction:column;gap:1rem}
+.prosa ul{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:.35rem}
+
+/* trilha fixa */
+.trilha{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--papel) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--linha)}
+.trilha .wrap{display:flex;align-items:center;gap:14px;min-height:54px}
+.trilha .marca{font-family:var(--f-display);font-weight:800;font-size:.98rem;white-space:nowrap;color:var(--tinta);text-decoration:none}
+.trilha nav{overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.trilha nav::-webkit-scrollbar{display:none}
+.trilha ol{list-style:none;margin:0;padding:0;display:flex;gap:4px}
+.trilha a{display:block;white-space:nowrap;text-decoration:none;color:var(--tinta-2);font-size:.86rem;font-weight:600;padding:6px 10px;border-radius:999px}
+.trilha a:hover{background:var(--superficie-2);color:var(--tinta)}
+.trilha a.ativo{background:var(--selo-bg);color:var(--selo-tx)}
+@media (max-width:640px){.trilha .marca{display:none}}
+
+/* abertura */
+.abertura{padding-block:56px 40px}
+.abertura .wrap{display:flex;flex-direction:column;gap:22px}
+.sobrelinha{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--marca-tx);font-weight:700}
+.abertura h1{font-size:clamp(2.3rem,6vw,4.2rem);font-weight:800;letter-spacing:-.03em;max-width:18ch}
+.abertura h1 .mais{color:var(--marca)}
+.abertura .lide{font-size:1.22rem;line-height:1.55;color:var(--tinta-2);max-width:64ch}
+.fio{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-top:10px;border:1px solid var(--linha);border-radius:var(--raio);background:var(--superficie);overflow:hidden;box-shadow:var(--sombra)}
+.fio a{position:relative;display:flex;flex-direction:column;gap:4px;padding:16px 18px 18px;text-decoration:none;color:var(--tinta);border-right:1px solid var(--linha);min-width:0}
+.fio a:last-child{border-right:0;background:var(--marca-suave)}
+.fio a:hover{background:var(--superficie-2)}
+.fio a:last-child:hover{background:var(--marca-suave)}
+.fio .n{font-family:var(--f-codigo);font-size:.74rem;color:var(--tinta-3);font-weight:600;font-variant-numeric:tabular-nums}
+.fio strong{font-family:var(--f-display);font-size:1.08rem}
+.fio span.d{font-size:.88rem;color:var(--tinta-2);line-height:1.35}
+.fio a:not(:last-child)::after{content:"";position:absolute;right:-7px;top:50%;width:12px;height:12px;background:var(--superficie);border-top:1px solid var(--linha);border-right:1px solid var(--linha);transform:translateY(-50%) rotate(45deg);z-index:1}
+@media (max-width:900px){.fio{grid-template-columns:repeat(3,minmax(0,1fr))}.fio a:nth-child(3){border-right:0}.fio a:nth-child(-n+3){border-bottom:1px solid var(--linha)}.fio a:nth-child(3)::after{display:none}}
+@media (max-width:520px){.fio{grid-template-columns:1fr}.fio a{border-right:0;border-bottom:1px solid var(--linha)}.fio a::after{display:none}}
+.carimbo{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.88rem;color:var(--tinta-3)}
+.carimbo b{color:var(--tinta-2);font-weight:600}
+.como{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.como div{display:flex;gap:10px;align-items:flex-start;font-size:.96rem;color:var(--tinta-2);line-height:1.45}
+.como b{color:var(--tinta)}
+.como span>b:first-child{display:block}
+.como i{flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font:700 .82rem var(--f-codigo);background:var(--superficie-3);color:var(--tinta)}
+@media (max-width:720px){.como{grid-template-columns:1fr}}
+
+/* seções */
+.secao{padding-block:64px 28px;border-top:1px solid var(--linha)}
+.secao>.wrap{display:flex;flex-direction:column;gap:26px}
+.secao-cab{display:flex;flex-direction:column;gap:12px;max-width:70ch}
+.secao-cab .sobrelinha{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.secao-cab .sobrelinha i{font-style:normal;display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;border-radius:6px;background:var(--tinta);color:var(--papel);font-size:.8rem}
+.secao-cab .tempo{font-family:var(--f-codigo);font-size:.72rem;color:var(--tinta-3);letter-spacing:.04em;font-weight:600}
+.definicao{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:baseline;max-width:70ch;padding:16px 20px;background:var(--superficie);border:1px solid var(--linha);border-left:4px solid var(--marca);border-radius:0 var(--raio) var(--raio) 0}
+.definicao .rot{font-family:var(--f-codigo);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--marca-tx);font-weight:600}
+.definicao p{font-size:1.12rem;line-height:1.5}
+@media (max-width:520px){.definicao{grid-template-columns:1fr}}
+.nota{max-width:70ch;display:flex;flex-direction:column;gap:6px;padding:14px 18px;border-radius:var(--raio);background:var(--superficie-2);font-size:.98rem;line-height:1.55;color:var(--tinta-2)}
+.nota>b:first-child{font-family:var(--f-codigo);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tinta)}
+.nota.armadilha{background:var(--erro-suave);box-shadow:inset 4px 0 0 var(--erro)}
+.nota.projeto{background:var(--marca-suave);box-shadow:inset 4px 0 0 var(--marca)}
+.nota.projeto>b:first-child{color:var(--marca-forte)}
+.nota.regra{background:var(--certo-suave);box-shadow:inset 4px 0 0 var(--certo)}
+
+/* fala do professor */
+.fala{max-width:760px;margin:0;padding:20px 24px;border-radius:var(--raio);background:var(--superficie-2);border:1px solid var(--linha);display:flex;flex-direction:column;gap:10px}
+.fala blockquote{margin:0;font-family:var(--f-display);font-size:clamp(1.2rem,2.4vw,1.5rem);line-height:1.4;font-weight:600;color:var(--tinta)}
+.fala blockquote::before{content:"“";color:var(--marca);font-weight:800;margin-right:2px}
+.fala blockquote::after{content:"”";color:var(--marca);font-weight:800;margin-left:2px}
+.fala figcaption{font-size:.86rem;color:var(--tinta-3)}
+.fala figcaption b{color:var(--tinta-2);font-weight:600}
+
+/* fluxogramas: tracejado = produzido por IA; borda verde = julgamento humano; laranja cheio = ponto de chegada */
+.fluxo{display:flex;align-items:stretch;gap:0;flex-wrap:nowrap;overflow-x:auto;padding:4px 2px 8px}
+.fluxo .no{flex:1 1 0;min-width:120px;padding:12px 14px;border:2px solid var(--linha-forte);border-radius:12px;background:var(--superficie-2);display:flex;flex-direction:column;gap:2px;justify-content:center;text-align:center;font-size:.9rem;line-height:1.35;color:var(--tinta-2);transition:background .25s,border-color .25s,box-shadow .25s}
+.fluxo .no b{font-family:var(--f-display);font-size:1rem;color:var(--tinta)}
+.no.ia{background:var(--superficie);border-style:dashed;border-color:var(--ia)}
+.no.humano{background:var(--superficie);border-color:var(--certo);border-width:3px}
+.no.foco{background:var(--marca-tx);border-color:var(--marca-tx);color:var(--sobre-marca)}
+.no.foco b{color:var(--sobre-marca)}
+.no.aceso{box-shadow:0 0 0 4px var(--marca);border-color:var(--marca)}
+.fluxo .seta{flex:0 0 34px;display:grid;place-items:center;color:var(--tinta-3);font-weight:700;font-size:1.2rem}
+.retorno{font-size:.88rem;color:var(--tinta-3);font-style:italic;text-align:center;border-top:2px solid var(--linha-forte);padding-top:6px;margin:0 60px;transition:color .25s,border-color .25s}
+.retorno.aceso{color:var(--marca-tx);border-color:var(--marca);font-weight:700}
+@media (max-width:620px){.fluxo{flex-direction:column}.fluxo .no{min-width:0}.fluxo .seta{flex-basis:26px;transform:rotate(90deg)}.retorno{margin:0}}
+.legenda-fluxo{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--tinta-3)}
+.legenda-fluxo span{display:inline-flex;align-items:center;gap:6px}
+.legenda-fluxo i{display:inline-block;width:22px;height:14px;border-radius:4px;border:2px solid var(--linha-forte);background:var(--superficie-2)}
+.legenda-fluxo i.ia{border-style:dashed;border-color:var(--ia);background:var(--superficie)}
+.legenda-fluxo i.humano{border-color:var(--certo);background:var(--superficie)}
+.legenda-fluxo i.foco{border-color:var(--marca-tx);background:var(--marca-tx)}
+
+/* bancadas */
+.bancada{background:#FAF9F7;border:1px solid color-mix(in srgb,var(--marca) 28%,var(--linha));border-top:5px solid var(--marca);border-radius:16px;box-shadow:0 12px 30px rgba(12,11,10,.10),0 3px 8px rgba(12,11,10,.06);overflow:hidden;min-width:0}
+.bancada-cab{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:16px 20px 14px;border-bottom:1px solid var(--linha);background:#F1EFEC}
+.selo{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--btn-tx);background:var(--btn-bg);padding:4px 11px;border-radius:999px}
+.bancada-cab h3{font-size:1.16rem}
+.bancada-cab p{flex-basis:100%;font-size:.95rem;color:var(--tinta-2);line-height:1.45}
+.bancada-corpo{padding:18px 20px 20px;display:flex;flex-direction:column;gap:16px}
+.controles{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.campo{display:flex;flex-direction:column;gap:4px;font-size:.86rem;color:var(--tinta-2);font-weight:600;min-width:0;max-width:100%}
+select{max-width:100%;font:500 .95rem var(--f-texto);color:var(--tinta);background:var(--superficie);border:1px solid var(--linha-forte);border-radius:7px;padding:7px 10px}
+input[type="range"]{accent-color:var(--marca);width:240px;max-width:100%}
+.btn{font:700 .9rem var(--f-texto);padding:9px 18px;border-radius:999px;border:1px solid var(--btn-bg);background:var(--btn-bg);color:var(--btn-tx);cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.sec{background:var(--superficie);color:var(--tinta);border-color:var(--linha-forte)}
+.btn:disabled{opacity:.45;cursor:default;filter:none}
+.btn.vivo::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--btn-tx);margin-right:8px;vertical-align:1px}
+.explica{font-size:1rem;line-height:1.55;color:var(--tinta-2);padding:12px 14px;border-radius:9px;background:var(--superficie-2);min-height:3em}
+.explica b{color:var(--tinta)}
+.aviso-vivo{font-size:.86rem;color:var(--tinta-3)}
+.passos-nav{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.pontos{display:flex;gap:6px;flex-wrap:wrap}
+.pontos button{width:32px;height:32px;border-radius:50%;border:1px solid var(--linha-forte);background:var(--superficie);color:var(--tinta-2);font:700 .8rem var(--f-codigo);cursor:pointer}
+.pontos button.feito{background:var(--superficie-3);color:var(--tinta)}
+.pontos button.atual{background:var(--btn-bg);border-color:var(--btn-bg);color:var(--btn-tx)}
+.passo-tit{display:flex;flex-direction:column;gap:2px}
+.passo-tit small{font-family:var(--f-codigo);font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--marca-forte);font-weight:600}
+.passo-tit strong{font-family:var(--f-display);font-size:1.2rem;color:var(--tinta)}
+
+/* bancada 1: motivos */
+.abas{display:flex;flex-wrap:wrap;gap:6px}
+.abas button{font:600 .9rem var(--f-texto);padding:7px 14px;border-radius:999px;border:1px solid var(--linha-forte);background:var(--superficie);color:var(--tinta-2);cursor:pointer}
+.abas button small{font-family:var(--f-codigo);font-size:.72rem;color:var(--tinta-3);margin-right:6px}
+.abas button[aria-selected="true"]{background:var(--btn-bg);border-color:var(--btn-bg);color:var(--btn-tx)}
+.abas button[aria-selected="true"] small{color:var(--btn-tx)}
+.motivo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.motivo .lado{padding:14px 16px;border-radius:12px;border:1px solid var(--linha);background:var(--superficie);display:flex;flex-direction:column;gap:6px;font-size:.96rem;line-height:1.5;color:var(--tinta-2);min-width:0}
+.motivo .lado b.rot{font:700 .72rem var(--f-codigo);letter-spacing:.07em;text-transform:uppercase}
+.motivo .sem{border-style:dashed;border-color:var(--ia)}
+.motivo .sem b.rot{color:var(--tinta-3)}
+.motivo .com{border:3px solid var(--certo)}
+.motivo .com b.rot{color:var(--certo)}
+.motivo .ponte{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:12px 16px;border-top:1px dashed var(--linha-forte);font-size:1rem;font-weight:600;color:var(--tinta)}
+.motivo .ponte.fim{border-top:0;border-radius:10px;background:var(--certo-suave);box-shadow:inset 4px 0 0 var(--certo)}
+.motivo .disse{grid-column:1/-1;padding:12px 16px;border-radius:10px;background:var(--marca-suave);font-size:.98rem;color:var(--tinta);line-height:1.5}
+.motivo .disse small{display:block;font:700 .7rem var(--f-codigo);letter-spacing:.08em;text-transform:uppercase;color:var(--marca-forte);margin-bottom:2px}
+@media (max-width:720px){.motivo{grid-template-columns:1fr}}
+
+/* bancada 5: ciclo */
+.fluxo.compacto .no{min-width:110px;padding:9px 10px}
+.fluxo.compacto .no b{font-size:.9rem}
+.fluxo.compacto .seta{flex-basis:26px}
+.ciclo-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.ciclo-palco{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ciclo-frase{font-size:1.06rem;line-height:1.5;color:var(--tinta)}
+.estado-base{border:1px solid var(--linha);border-radius:12px;background:var(--superficie-2);padding:14px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.estado-rot{font:700 .7rem var(--f-codigo);letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3)}
+.mini-arq{display:flex;flex-direction:column;gap:6px}
+.mini-nome{font:600 .8rem var(--f-codigo);color:var(--marca-forte)}
+.mini-arq ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.mini-arq li{padding:8px 10px;border-radius:8px;background:var(--superficie);border:1px solid var(--linha);font-size:.86rem;line-height:1.4;color:var(--tinta-2)}
+.mini-arq li b{font-family:var(--f-codigo);font-size:.8rem;color:var(--tinta)}
+.mini-arq li.novo{border-color:var(--marca);box-shadow:0 0 0 2px var(--marca-suave)}
+.mini-arq li.vazio{border-style:dashed;color:var(--tinta-3);font-style:italic}
+.mini-arq .st{display:inline-block;margin-left:4px;font:700 .7rem var(--f-codigo);padding:1px 6px;border-radius:4px;background:var(--aviso-suave);border:1px solid var(--aviso);color:var(--tinta)}
+.mini-arq .st.ok{background:var(--certo-suave);border-color:var(--certo)}
+.tabela.casos{min-width:560px}
+.tabela.casos tr.sai td{text-decoration:line-through;color:var(--tinta-3)}
+.tabela.casos tr.sai td:last-child{text-decoration:none}
+.conversa{display:flex;flex-direction:column;gap:8px}
+.msg{max-width:90%;padding:10px 14px;border-radius:12px;font-size:.94rem;line-height:1.45;color:var(--tinta)}
+.msg b{display:block;font:700 .72rem var(--f-codigo);letter-spacing:.06em;color:var(--tinta-3)}
+.msg.qa{align-self:flex-start;background:var(--superficie-3)}
+.msg.po{align-self:flex-end;background:var(--certo-suave)}
+@media (max-width:900px){.ciclo-grid{grid-template-columns:1fr}}
+
+/* barra de janela */
+.barra-janela{position:relative;display:flex;height:34px;border-radius:9px;border:2px solid var(--tinta);overflow:hidden;background:var(--superficie)}
+.barra-janela span{display:grid;place-items:center;font-size:.72rem;font-weight:700;color:var(--tinta);white-space:nowrap;overflow:hidden;border-right:1px solid var(--papel);transition:width .3s}
+.barra-janela .marco{position:absolute;top:-2px;bottom:-2px;width:0;border-left:2px dashed var(--erro);z-index:2}
+.marco-rot{display:flex;justify-content:space-between;font:600 .74rem var(--f-codigo);color:var(--tinta-3);font-variant-numeric:tabular-nums}
+.marco-rot b{color:var(--erro)}
+
+/* bancada 2: sessão longa */
+.fatos{display:flex;flex-direction:column;gap:8px}
+.fato{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;background:var(--superficie);font-size:.93rem;line-height:1.4;color:var(--tinta-2);transition:background .25s,border-color .25s,opacity .25s}
+.fato input{accent-color:var(--marca);width:18px;height:18px}
+.fato .txt{min-width:0}
+.fato .txt small{display:block;font:600 .74rem var(--f-codigo);color:var(--tinta-3)}
+.fato .estado{font:700 .72rem var(--f-codigo);padding:3px 8px;border-radius:5px;white-space:nowrap;border:1px solid var(--linha-forte);background:var(--superficie-3);color:var(--tinta-2)}
+.fato.perdido{opacity:.55;border-style:dashed}
+.fato.perdido .txt span{text-decoration:line-through}
+.fato.perdido .estado{background:var(--erro-suave);border-color:var(--erro);color:var(--tinta)}
+.fato.resumido .estado{background:var(--aviso-suave);border-color:var(--aviso);color:var(--tinta)}
+.fato.base .estado{background:var(--certo-suave);border-color:var(--certo);color:var(--tinta)}
+.fato.base{border-color:var(--certo)}
+@media (max-width:520px){.fato{grid-template-columns:auto minmax(0,1fr)}.fato .estado{grid-column:2;justify-self:start}}
+
+/* gavetas e cartões */
+.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.cartoes>div{border:1px solid var(--linha);border-radius:12px;background:var(--superficie);padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cartoes h4{font-size:1rem}
+.cartoes p,.cartoes li{font-size:.92rem;line-height:1.5;color:var(--tinta-2)}
+.cartoes ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:3px}
+.cartoes small{font-size:.78rem;color:var(--tinta-3)}
+.cartoes .arq{font:600 .76rem var(--f-codigo);color:var(--marca-forte)}
+.cartoes.fora>div{background:var(--erro-suave);border-color:color-mix(in srgb,var(--erro) 35%,transparent)}
+
+/* US-01 ao lado da triagem */
+.triagem{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:18px;align-items:start}
+.triagem-quiz{display:flex;flex-direction:column;gap:10px;min-width:0}
+.historia{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px);border:1px solid var(--linha);border-left:4px solid var(--marca);border-radius:0 12px 12px 0;background:var(--superficie-2);padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0;max-height:calc(100vh - 90px);overflow-y:auto}
+.historia-rot{font:700 .7rem var(--f-codigo);letter-spacing:.08em;text-transform:uppercase;color:var(--marca-forte)}
+.historia h3{font-size:1.04rem}
+.historia-us{font-size:.92rem;color:var(--tinta-2);line-height:1.45}
+.historia ul{margin:0;padding-left:1.1rem;font-size:.9rem;line-height:1.45;color:var(--tinta-2);display:flex;flex-direction:column;gap:4px}
+.historia b{color:var(--tinta)}
+@media (max-width:900px){.triagem{grid-template-columns:1fr}.historia{position:static;max-height:none}}
+
+/* quiz de triagem */
+.quiz{display:flex;flex-direction:column;gap:10px}
+.quiz-q{padding:14px 16px;border:1px solid var(--linha);border-radius:10px;background:var(--superficie);display:flex;flex-direction:column;gap:10px}
+.quiz-q .enun{font-size:.98rem;color:var(--tinta)}
+.quiz-q .origem{font-size:.8rem;color:var(--tinta-3)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.op{font:600 .86rem var(--f-texto);padding:7px 12px;border-radius:8px;border:1px solid var(--linha-forte);background:var(--superficie);color:var(--tinta);cursor:pointer}
+.op.certo{background:var(--certo-suave);border-color:var(--certo)}
+.op.errado{background:var(--erro-suave);border-color:var(--erro)}
+.fb{font-size:.94rem;color:var(--tinta-2);line-height:1.5}
+.placar{font:700 .86rem var(--f-codigo);color:var(--tinta-2)}
+.tag{display:inline-block;font:700 .72rem var(--f-codigo);padding:2px 8px;border-radius:5px;white-space:nowrap}
+.tag.s{background:var(--certo-suave);color:var(--tinta);border:1px solid var(--certo)}
+.tag.i{background:var(--aviso-suave);color:var(--tinta);border:1px solid var(--aviso)}
+.tag.x{background:var(--erro-suave);color:var(--tinta);border:1px solid var(--erro)}
+
+/* explorador de arquivos */
+.explorador{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);border:1px solid var(--linha);border-radius:12px;overflow:hidden;min-height:360px}
+.arvore{background:var(--superficie-2);border-right:1px solid var(--linha);padding:10px 8px;display:flex;flex-direction:column;gap:2px;font-family:var(--f-codigo);font-size:.84rem}
+.arvore .pasta{padding:6px 8px 2px;color:var(--tinta-3);font-weight:600}
+.arvore button{display:flex;align-items:center;gap:8px;text-align:left;font:inherit;padding:6px 8px;border:0;border-radius:6px;background:none;color:var(--tinta-2);cursor:pointer}
+.arvore button.n2{padding-left:24px}
+.arvore button:hover{background:var(--superficie-3);color:var(--tinta)}
+.arvore button[aria-selected="true"]{background:var(--selo-bg);color:var(--selo-tx);font-weight:700}
+.leitor{display:flex;flex-direction:column;min-width:0}
+.leitor-cab{padding:9px 14px;border-bottom:1px solid var(--linha);font:600 .8rem var(--f-codigo);color:var(--tinta-3);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.leitor pre{margin:0;padding:14px 16px;font-size:.82rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--texto);background:var(--superficie);flex:1;max-height:440px;overflow-y:auto}
+.leitor .porque{padding:10px 14px;border-top:1px solid var(--linha);background:var(--marca-suave);font-size:.9rem;color:var(--tinta);line-height:1.45}
+@media (max-width:760px){.explorador{grid-template-columns:1fr}.arvore{border-right:0;border-bottom:1px solid var(--linha)}}
+.principios{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:10px}
+.principios div{padding:12px 14px;border-left:3px solid var(--marca);background:var(--superficie-2);border-radius:0 10px 10px 0;font-size:.92rem;line-height:1.45;color:var(--tinta-2)}
+.principios b{display:block;color:var(--tinta);font-family:var(--f-display)}
+
+/* bancada consulta */
+.itens-janela{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:8px}
+.item-j{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;background:var(--superficie);font-size:.88rem;line-height:1.4;color:var(--tinta-2);cursor:pointer}
+.item-j b{display:block;color:var(--tinta);font-family:var(--f-codigo);font-size:.82rem}
+.item-j input{margin-top:3px;accent-color:var(--marca)}
+.item-j.fixo{background:var(--superficie-2);cursor:default}
+.item-j.grande{border-style:dashed;border-color:var(--erro)}
+.saida{border:1px solid var(--linha);border-radius:12px;background:var(--superficie);overflow:hidden;min-width:0}
+.saida-cab{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:9px 14px;border-bottom:1px solid var(--linha);background:var(--superficie-2);font-size:.82rem;color:var(--tinta-3)}
+.saida-cab b{color:var(--tinta);font-family:var(--f-codigo);font-size:.8rem}
+.saida-corpo{padding:12px 16px;font-size:.92rem;line-height:1.55;color:var(--texto);display:flex;flex-direction:column;gap:10px;min-width:0}
+.saida-corpo .md-h{font-family:var(--f-display);font-weight:700;color:var(--tinta)}
+.saida-corpo ul,.saida-corpo ol{margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:4px}
+.pensando{color:var(--tinta-3);font-style:italic}
+.pedido{padding:12px 16px;border-radius:10px;background:var(--superficie-2);border:1px solid var(--linha);box-shadow:inset 4px 0 0 var(--tinta);font-family:var(--f-codigo);font-size:.82rem;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow-y:auto;color:var(--texto)}
+.rolagem{overflow-x:auto;min-width:0}
+.tabela{width:100%;border-collapse:collapse;font-size:.88rem}
+.tabela th,.tabela td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--linha);vertical-align:top;color:var(--tinta-2)}
+.tabela th{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--tinta-3)}
+.tabela td:first-child{color:var(--tinta);font-weight:600}
+.tabela.comp{min-width:640px}
+.tabela.comp tr.dest td{background:var(--marca-suave)}
+
+details.revelar{max-width:70ch;border:1px solid var(--linha);border-radius:10px;background:var(--superficie)}
+details.revelar summary{cursor:pointer;padding:12px 16px;font-weight:700;list-style:none;display:flex;gap:10px;align-items:center;color:var(--tinta)}
+details.revelar summary::-webkit-details-marker{display:none}
+details.revelar summary::before{content:"+";font-family:var(--f-codigo);color:var(--marca-tx);font-weight:700;width:14px}
+details.revelar[open] summary::before{content:"\2212"}
+details.revelar>div{padding:0 16px 14px 40px;color:var(--tinta-2);font-size:.98rem;line-height:1.55;display:flex;flex-direction:column;gap:8px}
+
+
+.checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.checklist li{display:flex;gap:10px;align-items:flex-start;line-height:1.4;color:var(--tinta-2)}
+.checklist li::before{content:"";flex:0 0 14px;height:14px;margin-top:4px;border:2px solid var(--certo);border-radius:4px}
+.mapa-final{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mapa-final div{padding:16px 18px;border:1px solid var(--linha);border-radius:12px;background:var(--superficie);display:flex;flex-direction:column;gap:6px}
+.mapa-final strong{font-family:var(--f-display);font-size:1.08rem;color:var(--tinta)}
+.mapa-final p{font-size:.95rem;color:var(--tinta-2);line-height:1.45}
+.mapa-final small{font-family:var(--f-codigo);font-size:.72rem;color:var(--tinta-3);letter-spacing:.06em;text-transform:uppercase}
+.mapa-final div:last-child{background:var(--marca-suave);border-color:color-mix(in srgb,var(--marca) 40%,transparent)}
+@media (max-width:860px){.mapa-final{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.mapa-final{grid-template-columns:1fr}}
+
+
+.rodape{padding-block:40px 60px;border-top:1px solid var(--linha);font-size:.88rem;color:var(--tinta-3)}
+.rodape .wrap{display:flex;flex-direction:column;gap:10px}
+.rodape ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:4px}
+</style>
+<style>
+.c1-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.c1-grid{grid-template-columns:1fr}}
+.c1-lado{display:flex;flex-direction:column;gap:12px;min-width:0}
+.loja-mini{--lv:#2F5D50;--lv-claro:#E5EFEB;--lf:#F6F3EE;--ll:#E2DDD5;--lt:#1F1B16;--ls:#6B6359;--lok:#1E6B3A;--lok-f:#E4F4E9;
+  background:var(--lf);border:1px solid var(--ll);border-radius:12px;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:10px;font:13px/1.4 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--lt);min-width:0}
+@media (max-width:520px){.loja-mini{grid-template-columns:1fr}}
+.loja-mini .topo-mini{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ll);padding-bottom:6px}
+.loja-mini .topo-mini b{color:var(--lv);font-size:15px;font-weight:800}
+.loja-mini .topo-mini span{color:var(--ls);font-size:11px}
+.zona{position:relative;background:#fff;border:1px solid var(--ll);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;transition:box-shadow .25s,border-color .25s,opacity .25s;min-width:0}
+.zona h5{margin:0;font-size:12px;font-weight:700;color:var(--lt)}
+.loja-mini.focada .zona{opacity:.55}
+.loja-mini.focada .zona.acesa{opacity:1}
+.zona.acesa{border-color:var(--marca);box-shadow:0 0 0 3px var(--marca)}
+.zona .acao{position:absolute;top:-11px;right:8px;background:var(--marca-tx);color:#fff;font:700 10px var(--f-codigo);letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px}
+.col-dir{display:flex;flex-direction:column;gap:8px;min-width:0}
+.prod-mini{display:flex;flex-direction:column;gap:4px}
+.prod-mini .foto{height:44px;border-radius:6px;background:#FFF3D6;display:grid;place-items:center;font-size:22px}
+.prod-mini .pr{font-weight:700}
+.bt-mini{background:var(--lv);color:#fff;border-radius:6px;padding:4px 6px;text-align:center;font-weight:600;font-size:12px}
+.bt-mini.sec{background:#fff;color:var(--lv);border:1px solid var(--lv)}
+.lnk-mini{color:var(--lv);text-decoration:underline;font-size:11px}
+.linha-mini{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+.linha-mini .s{color:var(--ls)}
+.vazio-mini{color:var(--ls);font-style:italic}
+.radio-mini{display:flex;justify-content:space-between;gap:6px;padding:3px 6px;border:1px solid var(--ll);border-radius:6px}
+.radio-mini.on{border-color:var(--lv);background:var(--lv-claro);font-weight:600}
+.radio-mini.on::before{content:"\25CF";color:var(--lv);margin-right:4px}
+.radio-mini:not(.on)::before{content:"\25CB";color:var(--ls);margin-right:4px}
+.radio-mini span:first-child{flex:1}
+.campo-mini{display:flex;gap:6px}
+.campo-mini .inp{flex:1;border:1px solid #B9B1A6;border-radius:6px;padding:3px 6px;background:#fff;min-width:0;font-family:var(--f-codigo);font-size:12px}
+.campo-mini .inp.ph{color:#A39C92;font-family:inherit}
+.msg-mini{background:var(--lok-f);color:var(--lok);border-radius:6px;padding:3px 6px;font-size:12px}
+.total-mini{border-top:1px solid var(--ll);padding-top:4px;font-weight:800;font-size:14px}
+.desc-mini{color:var(--lok)}
+.marca-erro{background:var(--erro-suave);outline:2px solid var(--erro);border-radius:4px;padding:0 3px}
+.comp-mini{width:100%;border-collapse:collapse;font-size:.92rem}
+.comp-mini th,.comp-mini td{padding:6px 8px;border-bottom:1px solid var(--linha);text-align:left}
+.comp-mini th{font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--tinta-3)}
+.comp-mini td.x{color:var(--erro);font-weight:700}
+.tag.n{background:var(--superficie-3);color:var(--tinta-2);border:1px solid var(--linha-forte)}
+.copiar{font:700 .82rem var(--f-texto);padding:6px 14px;border-radius:999px;border:1px solid var(--linha-forte);background:var(--superficie);color:var(--tinta);cursor:pointer}
+.copiar:hover{border-color:var(--marca)}
+.triagem.casos{grid-template-columns:minmax(0,.95fr) minmax(0,1.6fr)}
+@media (max-width:900px){.triagem.casos{grid-template-columns:1fr}}
+.ref-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:16px;align-items:start}
+.ref-lista{display:flex;flex-direction:column;gap:6px}
+.ref-lista button{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;font:inherit;font-size:.92rem;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;background:var(--superficie);color:var(--tinta-2);cursor:pointer}
+.ref-lista button b{font-family:var(--f-codigo);font-size:.84rem;color:var(--tinta)}
+.ref-lista button[aria-selected="true"]{border-color:var(--marca);box-shadow:0 0 0 2px var(--marca-suave)}
+.ref-detalhe{border:1px solid var(--linha);border-radius:12px;background:var(--superficie);padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.ref-detalhe dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;font-size:.94rem}
+.ref-detalhe dt{font:700 .72rem var(--f-codigo);letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3);padding-top:3px}
+.ref-detalhe dd{margin:0;color:var(--tinta)}
+.tela{font-family:var(--f-codigo);font-size:.86rem;background:var(--superficie-2);border:1px solid var(--linha);border-radius:8px;padding:8px 10px;color:var(--texto)}
+@media (max-width:820px){.ref-grid{grid-template-columns:1fr}}
+.dados{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.passos-demo{margin:0;padding-left:1.3rem;display:flex;flex-direction:column;gap:8px;max-width:72ch;font-size:1rem;color:var(--tinta-2)}
+.passos-demo b{color:var(--tinta)}
+.modos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:860px}
+.modos>div{border:1px solid var(--linha);border-radius:12px;background:var(--superficie);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.modos h4{font-size:1rem}
+.modos p{font-size:.92rem;line-height:1.5;color:var(--tinta-2)}
+.modos small{font:700 .7rem var(--f-codigo);letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)}
+.modos .rec{border:3px solid var(--certo)}
+.modos .risco{border-color:color-mix(in srgb,var(--erro) 45%,var(--linha))}
+@media (max-width:760px){.modos{grid-template-columns:1fr}}
+.argumentos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;max-width:860px}
+.argumentos div{padding:14px 16px;border:1px solid var(--linha);border-radius:12px;background:var(--superficie);font-size:.96rem;line-height:1.5;color:var(--tinta-2)}
+.argumentos b{display:block;font-family:var(--f-display);color:var(--tinta)}
+.argumentos .q{grid-column:1/-1;justify-self:center;padding:12px 22px;border:2px solid var(--marca-tx);border-radius:999px;background:var(--marca-suave);font-weight:700;color:var(--tinta);text-align:center}
+@media (max-width:620px){.argumentos{grid-template-columns:1fr}}
+</style>
+
+<header class="trilha">
+  <div class="wrap">
+    <a class="marca" href="#topo">Claude testando a tela</a>
+    <nav aria-label="Seções da apresentação">
+      <ol>
+        <li><a href="#partida">Ponto de partida</a></li>
+        <li><a href="#olhos">1 Olhos e mãos</a></li>
+        <li><a href="#pedido">2 O pedido</a></li>
+        <li><a href="#permissao">3 Permissão</a></li>
+        <li><a href="#evidencia">4 Evidência</a></li>
+        <li><a href="#loja">A loja</a></li>
+        <li><a href="#demo">Demonstração</a></li>
+        <li><a href="#discussao">Discussão</a></li>
+        <li><a href="#cartao">Cartão</a></li>
+        <li><a href="#fechamento">Fechamento</a></li>
+      </ol>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="abertura" id="topo">
+  <div class="wrap">
+    <p class="sobrelinha">Continuação do encontro 3 · M1 · IA para QA · CESAR School</p>
+    <h1>O Claude executa o caso de teste; <span class="mais">o oráculo continua sendo seu</span></h1>
+    <p class="lide">No encontro 3 surgiu a pergunta: na prática, como o Claude testa uma aplicação? Hoje a resposta é ao vivo. Uma loja fictícia, seis casos de teste da US-01 e o Claude in Chrome abrindo a página, clicando, digitando e conferindo o resultado na tela.</p>
+    <nav class="fio" aria-label="O fio da apresentação">
+      <a href="#olhos"><strong>Olhos e mãos</strong><span class="d">lê a tela, age, confere</span></a>
+      <a href="#pedido"><strong>O pedido</strong><span class="d">o caso de teste vai junto</span></a>
+      <a href="#permissao"><strong>Permissão</strong><span class="d">até onde ele vai sozinho</span></a>
+      <a href="#evidencia"><strong>Evidência</strong><span class="d">o que estava na tela</span></a>
+      <a href="#demo"><strong>Demonstração</strong><span class="d">a loja Vitrine, ao vivo</span></a>
+      <a href="#fechamento"><strong>A pergunta</strong><span class="d">quem decide se passou?</span></a>
+    </nav>
+    <p class="carimbo"><span><b>Apresentação:</b> Eric Araujo</span><span><b>Caso:</b> loja Vitrine em homologação, história US-01</span></p>
+  </div>
+</section>
+
+<!-- PONTO DE PARTIDA -->
+<section class="secao" id="partida">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha">Ponto de partida</p>
+      <h2>O que acontece quando eu digo ao Claude: execute este caso de teste?</h2>
+    </div>
+    <div class="prosa">
+      <p>No encontro 3, o Victor mostrou um ciclo de regressão em arquivo, com cada caso de teste executado e registrado. Uma pergunta ficou: o que significa, no dia a dia, dizer ao Claude “execute este caso de teste”? Ele abre o sistema? Clica no botão? Como ele sabe se passou?</p>
+      <p>Hoje a gente responde mostrando. O Claude in Chrome é o Claude trabalhando dentro do navegador, na aba que você está vendo.</p>
+    </div>
+    <div class="definicao"><span class="rot">Definição</span><p>Claude in Chrome é uma extensão do Google Chrome. Num painel ao lado da página, o Claude lê o que está na tela, clica, digita e navega, e relata o que encontrou.</p></div>
+    <div class="cartoes">
+      <div><h4>A ferramenta</h4><p>Extensão do Chrome, disponível nos planos pagos. Abre num painel lateral e trabalha na aba aberta.</p></div>
+      <div><h4>O sistema em teste</h4><p>A loja Vitrine em homologação: produtos, carrinho, entrega e cupom de desconto. Fictícia, sem pagamento.</p></div>
+      <div><h4>O oráculo</h4><p>A US-01, a mesma história do cupom dos encontros anteriores, e seis casos de teste escritos a partir dela.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 1 OLHOS E MÃOS -->
+<section class="secao" id="olhos">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha"><i>1</i> Conceito 1 de 4 · olhos e mãos</p>
+      <h2>Ele lê a tela, age e confere, em ciclo</h2>
+    </div>
+    <div class="definicao"><span class="rot">Definição</span><p>Para executar um caso de teste, o Claude repete um ciclo: lê a página, decide o próximo passo, age, e lê de novo para ver o que mudou. No fim, compara o que viu com o resultado esperado.</p></div>
+    <div class="fluxo" role="img" aria-label="Ciclo: lê a página, decide o passo, age clicando ou digitando, confere a tela, e repete até comparar com o esperado.">
+      <div class="no"><b>Lê a página</b>texto, botões, campos</div><span class="seta" aria-hidden="true">→</span>
+      <div class="no ia"><b>Decide o passo</b>a partir do caso de teste</div><span class="seta" aria-hidden="true">→</span>
+      <div class="no ia"><b>Age</b>clica, digita, escolhe</div><span class="seta" aria-hidden="true">→</span>
+      <div class="no"><b>Confere a tela</b>o que mudou</div><span class="seta" aria-hidden="true">→</span>
+      <div class="no humano"><b>Compara</b>com o esperado</div>
+    </div>
+    <p class="retorno">↻ repete até o caso terminar</p>
+
+    <div class="bancada" id="b-ciclo">
+      <div class="bancada-cab"><span class="selo">Bancada 1</span><h3>O CT01, passo a passo</h3><p>Um caso de teste da US-01 executado na loja. Em cada passo, o que o Claude faz e o que ele lê na tela.</p></div>
+      <div class="bancada-corpo">
+        <div class="passos-nav">
+          <div class="pontos" id="c1-pontos" role="group" aria-label="Passos do CT01"></div>
+          <button type="button" class="btn sec" id="c1-voltar">Voltar</button>
+          <button type="button" class="btn" id="c1-avancar">Próximo passo</button>
+        </div>
+        <div class="c1-grid">
+          <div class="loja-mini" id="c1-loja" aria-label="Miniatura da loja Vitrine"></div>
+          <div class="c1-lado">
+            <div class="passo-tit"><small id="c1-cont"></small><strong id="c1-tit"></strong></div>
+            <div class="explica" id="c1-explica" aria-live="polite"></div>
+            <div id="c1-tela"></div>
+          </div>
+        </div>
+        <p class="aviso-vivo">Simulação do caminho do Claude na loja. A miniatura reproduz a loja; os textos e valores são os que ela mostra. A parte acesa é onde o Claude está agindo ou lendo.</p>
+      </div>
+    </div>
+    <div class="nota regra"><b>Para quem testa</b><span>É o mesmo trabalho de uma execução manual: seguir os passos, olhar a tela e comparar com o esperado. O que muda é quem clica.</span></div>
+  </div>
+</section>
+
+<!-- 2 O PEDIDO -->
+<section class="secao" id="pedido">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha"><i>2</i> Conceito 2 de 4 · o pedido</p>
+      <h2>O caso de teste vai no pedido; a página é só o sistema em teste</h2>
+    </div>
+    <div class="definicao"><span class="rot">Definição</span><p>O pedido ao Claude in Chrome carrega o oráculo: a história, os casos de teste e o que fazer quando algo não estiver definido. A página mostra o comportamento; quem diz o que é certo é o pedido.</p></div>
+    <div class="prosa">
+      <p>É a formulação do encontro 3 aplicada à execução: papel, contexto, tarefa, restrição e aceite. Sem a história no pedido, o Claude só consegue dizer o que a tela mostra, não se está certo. E ele não aceita ordens escritas na própria página: por segurança, instruções que aparecem no conteúdo de um site não são seguidas. O caso de teste precisa vir de você.</p>
+    </div>
+
+    <div class="bancada" id="b-pedido">
+      <div class="bancada-cab"><span class="selo">Bancada 2</span><h3>Monte o pedido</h3><p>As cinco partes de uma boa formulação, agora para executar testes. Desmarque uma e veja o que o Claude passa a decidir sozinho.</p></div>
+      <div class="bancada-corpo">
+        <div class="itens-janela" id="pd-partes"></div>
+        <div class="explica" id="pd-explica" aria-live="polite"></div>
+        <div class="controles"><button type="button" class="copiar" id="pd-copiar">Copiar o pedido</button><span class="aviso-vivo" id="pd-aviso" aria-live="polite"></span></div>
+        <div class="pedido" id="pd-texto" tabindex="0"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 PERMISSÃO -->
+<section class="secao" id="permissao">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha"><i>3</i> Conceito 3 de 4 · permissão</p>
+      <h2>No navegador, o modo de permissão decide até onde ele vai sozinho</h2>
+    </div>
+    <div class="prosa"><p>É a mesma ideia do Claude Code no encontro 2, agora no navegador. Um seletor no campo de mensagem do painel escolhe o modo.</p></div>
+    <div class="modos">
+      <div class="rec"><small>Para começar</small><h4>Perguntar antes de agir</h4><p>Antes de começar, o Claude monta um plano: quais sites vai acessar e como vai fazer. Você aprova o plano, e ele age dentro dele. Ações sensíveis, como baixar um arquivo ou digitar dados sensíveis, ele ainda pergunta.</p></div>
+      <div class="risco"><small>Evite em sistema real</small><h4>Agir sem perguntar</h4><p>O Claude trabalha sem pausar para aprovação. Só para quando você confia em tudo o que está envolvido na tarefa.</p></div>
+    </div>
+    <div class="nota armadilha"><b>O que ele não faz, em nenhum modo</b><span>Compras e pagamentos, criar contas, lidar com dados de cartão e seguir instruções escritas em páginas ou e-mails. Por isso a loja de hoje não tem etapa de pagamento: o teste para no resumo do pedido.</span></div>
+  </div>
+</section>
+
+<!-- 4 EVIDÊNCIA -->
+<section class="secao" id="evidencia">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha"><i>4</i> Conceito 4 de 4 · evidência</p>
+      <h2>O relatório é um resumo; a evidência é o que estava na tela</h2>
+    </div>
+    <div class="definicao"><span class="rot">Definição</span><p>Evidência de um teste executado pelo Claude é o que ele copiou da tela, passo a passo, e o que você consegue ver ou repetir. A frase “o teste passou” é texto provável, como no encontro 2.</p></div>
+    <div class="cartoes">
+      <div><h4>Valores copiados da tela</h4><p>O pedido manda copiar a mensagem do cupom e os valores de desconto e total. Assim dá para conferir cada linha sem refazer o caso.</p></div>
+      <div><h4>A aba que você está vendo</h4><p>O Claude trabalha na sua frente. O que ele clicou e o que apareceu está visível, e você pode interromper.</p></div>
+      <div><h4>Repetir quando importa</h4><p>Um caso que falhou é refeito à mão antes de virar bug. Uma execução só não é evidência, como no sorteio do encontro 1.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- A LOJA -->
+<section class="secao" id="loja">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha">A loja</p>
+      <h2>Vitrine em homologação: o que tem e o que vamos testar</h2>
+    </div>
+    <div class="prosa"><p>Uma página só, com seis produtos, três opções de entrega, campo de cupom e o resumo do pedido. Os cupons abaixo são os cadastrados pelo marketing para a homologação.</p></div>
+    <div class="dados">
+      <div class="rolagem"><table class="tabela"><thead><tr><th>Cupom</th><th>Desconto</th><th>Mínimo</th><th>Validade</th></tr></thead><tbody>
+        <tr><td>BEMVINDO10</td><td>10%</td><td>—</td><td>31/12/2026</td></tr>
+        <tr><td>PRIMAVERA15</td><td>15%</td><td>—</td><td>20/12/2026</td></tr>
+        <tr><td>MINIMO50</td><td>R$ 10,00</td><td>R$ 50,00</td><td>31/12/2026</td></tr>
+        <tr><td>DESC30</td><td>R$ 30,00</td><td>—</td><td>31/12/2026</td></tr>
+        <tr><td>VERAO2025</td><td>10%</td><td>—</td><td>31/03/2026</td></tr>
+      </tbody></table></div>
+      <div class="rolagem"><table class="tabela"><thead><tr><th>Produto ou entrega</th><th>Valor</th></tr></thead><tbody>
+        <tr><td>Luminária de mesa Aurora</td><td>R$ 100,00</td></tr>
+        <tr><td>Vaso de cerâmica Terra</td><td>R$ 40,00</td></tr>
+        <tr><td>Entrega Econômica</td><td>R$ 5,00</td></tr>
+        <tr><td>Entrega Padrão</td><td>R$ 20,00</td></tr>
+        <tr><td>Entrega Expressa</td><td>R$ 30,00</td></tr>
+      </tbody></table></div>
+    </div>
+    <h3>Os seis casos de teste, ao lado da história</h3>
+    <div class="triagem casos">
+      <aside class="historia" aria-label="História US-01, para conferir">
+        <p class="historia-rot">A régua dos casos</p>
+        <h3>US-01 · Aplicar cupom de desconto no checkout</h3>
+        <p class="historia-us"><b>Como</b> cliente da Vitrine, <b>quero</b> informar um cupom de desconto no checkout <b>para</b> pagar menos pelo meu pedido.</p>
+        <ul>
+          <li><b>R1.</b> O cupom é um código de 6 a 12 caracteres, formado por letras e números.</li>
+          <li><b>R2.</b> Cada cupom concede desconto percentual, entre 5% e 50%, ou desconto de valor fixo em reais.</li>
+          <li><b>R3.</b> O desconto incide sobre o valor dos produtos. O frete não recebe desconto.</li>
+          <li><b>R4.</b> Cada cupom tem data de validade. Depois dela, o cupom é recusado com a mensagem “Cupom expirado”.</li>
+          <li><b>R5.</b> Alguns cupons exigem um valor mínimo de pedido.</li>
+          <li><b>R6.</b> Só um cupom pode ser aplicado por pedido.</li>
+          <li><b>CA1.</b> Carrinho com R$ 200,00 em produtos e frete de R$ 20,00, cupom BEMVINDO10 (10%): desconto de R$ 20,00 e total de R$ 200,00.</li>
+          <li><b>CA2.</b> Cupom vencido: mensagem “Cupom expirado” e o total não muda.</li>
+          <li><b>CA3.</b> Com um cupom aplicado, aplicar outro cupom válido: o novo substitui o anterior.</li>
+        </ul>
+      </aside>
+      <div class="rolagem">
+      <table class="tabela" style="min-width:520px"><thead><tr><th>Caso</th><th>Passos</th><th>Resultado esperado</th><th>Origem</th></tr></thead><tbody>
+        <tr><td>CT01</td><td>2× Luminária, entrega Padrão, cupom BEMVINDO10</td><td>Desconto R$ 20,00 · total R$ 200,00</td><td>R3, CA1</td></tr>
+        <tr><td>CT02</td><td>1× Vaso, entrega Econômica, cupom MINIMO50</td><td>Cupom recusado · total R$ 45,00</td><td>R5</td></tr>
+        <tr><td>CT03</td><td>1× Luminária, entrega Padrão, cupom VERAO2025</td><td>Mensagem “Cupom expirado” · total R$ 120,00</td><td>R4, CA2</td></tr>
+        <tr><td>CT04</td><td>2× Luminária, entrega Padrão, BEMVINDO10 e depois DESC30</td><td>DESC30 substitui · desconto R$ 30,00 · total R$ 190,00</td><td>CA3</td></tr>
+        <tr><td>CT05</td><td>1× Luminária, entrega Padrão, cupom bemvindo10 em minúsculas</td><td>Cupom aceito, como BEMVINDO10</td><td>R1</td></tr>
+        <tr><td>CT06</td><td>1× Luminária, entrega Padrão, cupom MINIMO50</td><td>Desconto R$ 10,00 · total R$ 110,00</td><td>R2, R3</td></tr>
+      </tbody></table>
+      </div>
+    </div>
+    <div class="nota projeto"><b>Antes de olhar a execução</b><span>Releia o CT05 contra a US-01. O resultado esperado está escrito na história, ou alguém supôs?</span></div>
+  </div>
+</section>
+
+<!-- DEMONSTRAÇÃO -->
+<section class="secao" id="demo">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha">Demonstração</p>
+      <h2>A loja aberta, o painel ao lado e o pedido colado</h2>
+    </div>
+    <ol class="passos-demo">
+      <li><b>Abrir a loja</b> no Chrome, na tela da homologação.</li>
+      <li><b>Abrir o Claude in Chrome</b> pelo ícone da extensão, na barra do Chrome. O painel abre ao lado da página.</li>
+      <li><b>Escolher o modo</b> no seletor do campo de mensagem.</li>
+      <li><b>Colar o pedido</b> com a US-01 e os casos de teste.</li>
+      <li><b>Acompanhar</b> a execução na aba e, no fim, ler a tabela que ele devolve.</li>
+    </ol>
+    <div class="controles">
+      <button type="button" class="copiar" data-copiar="curto">Copiar o pedido curto (3 casos)</button>
+      <button type="button" class="copiar" data-copiar="completo">Copiar o pedido completo (6 casos)</button>
+      <span class="aviso-vivo" id="dm-aviso" aria-live="polite"></span>
+    </div>
+    <details class="revelar" style="max-width:none"><summary>Ver o pedido completo</summary><div><div class="pedido" id="dm-completo"></div></div></details>
+
+    <div class="bancada" id="b-ref">
+      <div class="bancada-cab"><span class="selo">Bancada 3</span><h3>Confira a execução</h3><p>Para cada caso: o esperado, o que a loja mostra e como o caso deve ser classificado. Use para conferir a tabela que o Claude devolver.</p></div>
+      <div class="bancada-corpo">
+        <div class="ref-grid">
+          <div class="ref-lista" id="rf-lista" role="tablist" aria-label="Casos de teste"></div>
+          <div class="ref-detalhe" id="rf-detalhe" role="tabpanel" aria-live="polite"></div>
+        </div>
+        <p class="aviso-vivo">Calculado a partir do comportamento da loja; não é uma execução do Claude. A tabela dele pode vir com outras palavras ou outra ordem.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DISCUSSÃO -->
+<section class="secao" id="discussao">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha">Discussão</p>
+      <h2>O Claude substitui a execução manual?</h2>
+    </div>
+    <div class="argumentos">
+      <div><b>Argumento A</b>Ele executa os casos repetitivos. Se um ciclo tem 260 casos e o Claude executa 200 com evidência conferível, sobram 60 para a mão de quem testa.</div>
+      <div><b>Argumento B</b>Ele executa o que está escrito. No CT05, o esperado foi suposto por quem escreveu o caso; no CT04, o defeito do CT01 aparece antes da troca de cupom, fora do que o caso pedia para olhar.</div>
+      <div class="q">Quem decide se o caso passou?</div>
+    </div>
+    <details class="revelar"><summary>Os dois argumentos podem estar certos ao mesmo tempo?</summary><div><p>Podem. O Claude tira de você o trabalho de clicar e copiar valores, e isso é tempo real. Mas a decisão sobre o que é falha, o que é lacuna e o que vira bug continua contra a fonte, a US-01, e continua sendo de quem testa.</p></div></details>
+    <details class="revelar"><summary>Se o Claude marcar o CT05 como “Falhou”, ele errou?</summary><div><p>Errou na classificação, não na execução. A tela mostrou “Cupom inválido”, e isso ele leu certo. O problema está no resultado esperado do caso, que não vem da US-01. A restrição do pedido manda marcar como lacuna; se ele não marcou, é a revisão que pega.</p></div></details>
+    <details class="revelar"><summary>E o defeito que ele achou fora do caso, no CT04?</summary><div><p>É o valor do teste exploratório aparecendo dentro do roteirizado. Ele vale como observação, não como resultado do caso: o CT04 testa a troca de cupom, e a troca funcionou. O desconto de R$ 22,00 antes da troca é o mesmo defeito do CT01.</p></div></details>
+  </div>
+</section>
+
+<!-- CARTÃO -->
+<section class="secao" id="cartao">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha">Cartão de consulta</p>
+      <h2>Antes de pedir ao Claude para testar uma tela</h2>
+    </div>
+    <div class="cartoes">
+      <div><h4>O ambiente</h4><ul class="checklist"><li>É homologação, não produção?</li><li>A conta de teste tem só a permissão necessária?</li><li>Nenhum dado real de cliente na tela?</li></ul></div>
+      <div><h4>O pedido</h4><ul class="checklist"><li>A história está no pedido?</li><li>Cada caso tem passos e resultado esperado?</li><li>Diz o que fazer com o que não está definido?</li><li>Pede para copiar o que aparece na tela?</li></ul></div>
+      <div><h4>A conferência</h4><ul class="checklist"><li>Cada “Falhou” tem o valor obtido?</li><li>Lacuna virou pergunta ao PO, não bug?</li><li>Refiz à mão o que vai virar bug?</li><li>Nenhuma senha digitada no pedido?</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- FECHAMENTO -->
+<section class="secao" id="fechamento">
+  <div class="wrap">
+    <div class="secao-cab">
+      <p class="sobrelinha">Fechamento</p>
+      <h2>O Claude executa e mostra; quem decide se passou é o QA</h2>
+    </div>
+    <div class="mapa-final">
+      <div><small>1 · Olhos e mãos</small><strong>Lê, age, confere</strong><p>O mesmo ciclo de uma execução manual, com outra mão no mouse.</p></div>
+      <div><small>2 · O pedido</small><strong>O oráculo vai junto</strong><p>A página mostra o comportamento; a história diz o que é certo.</p></div>
+      <div><small>3 · Permissão</small><strong>Comece perguntando</strong><p>O plano que ele mostra é a chance de olhar antes.</p></div>
+      <div><small>4 · Evidência</small><strong>O que estava na tela</strong><p>Valores copiados, aba à vista, falha refeita à mão.</p></div>
+      <div><small>Demonstração</small><strong>Falhou, passou, lacuna</strong><p>Três classificações diferentes; só uma delas é bug.</p></div>
+      <div><small>Resposta</small><strong>O QA decide</strong><p>O Claude tira o clique e a cópia; o julgamento contra a fonte continua seu.</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="rodape">
+  <div class="wrap">
+    <p><b>Sobre esta página.</b> A loja Vitrine, os cupons, os casos de teste e os defeitos são fictícios, criados para a aula. A Bancada 1 é uma simulação do caminho do Claude; a Bancada 3 foi calculada a partir do comportamento da loja.</p>
+    <p><b>Fontes</b></p>
+    <ul>
+      <li>Anthropic. <a href="https://support.claude.com/en/articles/12012173-get-started-with-claude-in-chrome">Get started with Claude in Chrome</a>. Central de ajuda do Claude.</li>
+      <li>Anthropic. <a href="https://support.claude.com/en/articles/12902446-claude-in-chrome-permissions-guide">Claude in Chrome permissions guide</a>. Central de ajuda do Claude.</li>
+      <li>Anthropic. <a href="https://support.claude.com/en/articles/12902428">Use Claude in Chrome safely</a>. Central de ajuda do Claude.</li>
+    </ul>
+    <p>IA para QA · CESAR School · M1 · Eric Araujo</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  /* trilha ativa */
+  var links = Array.prototype.slice.call(document.querySelectorAll(".trilha a"));
+  if ("IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (ents) {
+      ents.forEach(function (e) { if (e.isIntersecting) links.forEach(function (a) { a.classList.toggle("ativo", a.getAttribute("href") === "#" + e.target.id); }); });
+    }, { rootMargin: "-40% 0px -55% 0px" });
+    document.querySelectorAll("main section[id]").forEach(function (s) { obs.observe(s); });
+  }
+
+  /* copiar */
+  function copiar(texto, aviso) {
+    function ok() { aviso.textContent = "Copiado."; }
+    function falhou() { aviso.textContent = "Não deu para copiar automaticamente: selecione o texto do pedido e copie."; }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(ok, falhou);
+      else falhou();
+    } catch (e) { falhou(); }
+  }
+
+  /* textos do pedido */
+  var US01 = [
+    "US-01 · Aplicar cupom de desconto no checkout",
+    "R1. O cupom é um código de 6 a 12 caracteres, formado por letras e números.",
+    "R2. Cada cupom concede desconto percentual, entre 5% e 50%, ou desconto de valor fixo em reais.",
+    "R3. O desconto incide sobre o valor dos produtos. O frete não recebe desconto.",
+    "R4. Cada cupom tem data de validade. Depois dela, o cupom é recusado com a mensagem \"Cupom expirado\".",
+    "R5. Alguns cupons exigem um valor mínimo de pedido.",
+    "R6. Só um cupom pode ser aplicado por pedido.",
+    "CA1. Carrinho com R$ 200,00 em produtos e frete de R$ 20,00, cupom BEMVINDO10 (10%): desconto de R$ 20,00 e total de R$ 200,00.",
+    "CA2. Cupom vencido: mensagem \"Cupom expirado\" e o total não muda.",
+    "CA3. Com um cupom aplicado, aplicar outro cupom válido: o novo substitui o anterior."
+  ].join("\n");
+  var CASOS = {
+    CT01: "CT01 (R3, CA1). Adicione 2 unidades de \"Luminária de mesa Aurora\". Escolha a entrega \"Padrão\". Aplique o cupom BEMVINDO10. Esperado: desconto de R$ 20,00 e total de R$ 200,00.",
+    CT02: "CT02 (R5). Adicione 1 unidade de \"Vaso de cerâmica Terra\". Escolha a entrega \"Econômica\". Aplique o cupom MINIMO50 (R$ 10,00 de desconto, exige pedido mínimo de R$ 50,00). Esperado: o cupom é recusado; desconto de R$ 0,00 e total de R$ 45,00.",
+    CT03: "CT03 (R4, CA2). Adicione 1 unidade de \"Luminária de mesa Aurora\". Escolha a entrega \"Padrão\". Aplique o cupom VERAO2025 (validade encerrada em 31/03/2026). Esperado: mensagem \"Cupom expirado\" e total de R$ 120,00, sem mudança.",
+    CT04: "CT04 (CA3). Adicione 2 unidades de \"Luminária de mesa Aurora\". Escolha a entrega \"Padrão\". Aplique o cupom BEMVINDO10 e, em seguida, o cupom DESC30 (R$ 30,00 de desconto fixo). Esperado: DESC30 substitui BEMVINDO10; desconto de R$ 30,00 e total de R$ 190,00.",
+    CT05: "CT05 (R1). Adicione 1 unidade de \"Luminária de mesa Aurora\". Escolha a entrega \"Padrão\". Aplique o cupom bemvindo10, em letras minúsculas. Esperado: o cupom é aceito, como acontece com BEMVINDO10.",
+    CT06: "CT06 (R2, R3). Adicione 1 unidade de \"Luminária de mesa Aurora\". Escolha a entrega \"Padrão\". Aplique o cupom MINIMO50 (R$ 10,00 de desconto fixo, mínimo de R$ 50,00). Esperado: desconto de R$ 10,00 e total de R$ 110,00."
+  };
+  var PARTES = {
+    papel: "Você é analista de QA da Vitrine e vai testar a loja aberta nesta aba. É um ambiente de homologação de uma loja fictícia: não há pagamento e nada é comprado.",
+    contexto: "Contexto: a regra de negócio é a história US-01, abaixo. Ela é a única fonte de regra.\n\n" + US01,
+    restricao: "Restrições:\n- Use só a US-01. Não use regra que não esteja escrita nela.\n- Se o resultado esperado de um caso depender de algo que a US-01 não define, não marque como falha: marque \"Lacuna\" e escreva a pergunta para o PO.\n- Não vá para pagamento e não mexa em nada fora do carrinho.",
+    aceite: "Como responder: ao final, uma tabela com as colunas Caso | Status (Passou, Falhou, Lacuna ou Bloqueado) | Esperado | Obtido (copie da tela a mensagem do cupom e os valores de Desconto e Total) | Regra. Depois da tabela, liste os possíveis defeitos com os passos para reproduzir."
+  };
+  function tarefa(ids) {
+    return "Tarefa: execute os casos de teste abaixo, um por vez. Antes de cada caso, clique em \"Esvaziar carrinho\".\n\n" + ids.map(function (k) { return CASOS[k]; }).join("\n");
+  }
+  function montar(ids, sel) {
+    sel = sel || { papel: true, contexto: true, tarefa: true, restricao: true, aceite: true };
+    var p = [];
+    if (sel.papel) p.push(PARTES.papel);
+    if (sel.contexto) p.push(PARTES.contexto);
+    if (sel.tarefa) p.push(tarefa(ids)); else p.push("Teste o cupom de desconto desta loja.");
+    if (sel.restricao) p.push(PARTES.restricao);
+    if (sel.aceite) p.push(PARTES.aceite);
+    return p.join("\n\n");
+  }
+  var CURTO = ["CT01", "CT04", "CT05"], COMPLETO = ["CT01", "CT02", "CT03", "CT04", "CT05", "CT06"];
+
+  /* Bancada 1 */
+  function brl(v) { return "R$ " + v.toFixed(2).replace(".", ","); }
+  var C1 = [
+    { t: "Ler a página", foco: "todas", acao: "lê",
+      a: "Antes de clicar, o Claude lê a página inteira: os produtos com o botão “Adicionar ao carrinho”, o carrinho, as opções de entrega, o campo de cupom e o resumo do pedido. É assim que ele descobre onde agir.",
+      leu: "Produtos, carrinho vazio, três entregas, campo de cupom, total R$ 0,00",
+      e: { qtd: 0, frete: null, cupom: "", msg: "", desc: 0 } },
+    { t: "Preparar", foco: "carrinho", acao: "confere",
+      a: "O pedido manda começar cada caso com o carrinho vazio. Ele confere o carrinho; se houvesse algo, clicaria em “Esvaziar carrinho” e leria de novo.",
+      leu: "Seu carrinho está vazio.",
+      e: { qtd: 0, frete: null, cupom: "", msg: "", desc: 0 } },
+    { t: "Adicionar os produtos", foco: "produto carrinho", acao: "clica 2×",
+      a: "Clica duas vezes em “Adicionar ao carrinho” da Luminária. Depois lê o carrinho para conferir a quantidade e o valor.",
+      leu: "Luminária de mesa Aurora · 2 · R$ 200,00",
+      e: { qtd: 2, frete: null, cupom: "", msg: "", desc: 0 } },
+    { t: "Escolher a entrega", foco: "entrega resumo", acao: "marca",
+      a: "Marca a entrega Padrão e confere o frete no resumo: R$ 20,00, total R$ 220,00.",
+      leu: "Frete R$ 20,00 · Total R$ 220,00",
+      e: { qtd: 2, frete: "padrao", cupom: "", msg: "", desc: 0 } },
+    { t: "Aplicar o cupom", foco: "cupom", acao: "digita e clica",
+      a: "Digita BEMVINDO10 no campo, clica em Aplicar e lê a mensagem que aparece embaixo.",
+      leu: "Cupom BEMVINDO10 aplicado: 10% de desconto.",
+      e: { qtd: 2, frete: "padrao", cupom: "BEMVINDO10", msg: "Cupom BEMVINDO10 aplicado: 10% de desconto.", desc: 22 } },
+    { t: "Ler o resultado", foco: "resumo", acao: "lê",
+      a: "Lê os valores do resumo do pedido. É aqui que está a evidência: os números que a tela mostrou, copiados para o relatório.",
+      leu: "Produtos R$ 200,00 · Desconto − R$ 22,00 · Frete R$ 20,00 · Total R$ 198,00",
+      e: { qtd: 2, frete: "padrao", cupom: "BEMVINDO10", msg: "Cupom BEMVINDO10 aplicado: 10% de desconto.", desc: 22 } },
+    { t: "Comparar com o esperado", foco: "resumo", acao: "compara", erro: true,
+      a: "O caso esperava desconto de R$ 20,00 e total de R$ 200,00. A tela mostrou R$ 22,00 e R$ 198,00: 10% de R$ 220,00, ou seja, o frete entrou na base do desconto. <b>Falhou</b>, contra a R3 e o CA1. Quem confirma, refazendo à mão, é o QA.",
+      comp: true,
+      e: { qtd: 2, frete: "padrao", cupom: "BEMVINDO10", msg: "Cupom BEMVINDO10 aplicado: 10% de desconto.", desc: 22 } }
+  ];
+  function zona(id, foco, acao, titulo, corpo) {
+    var on = foco === "todas" || foco.split(" ").indexOf(id) >= 0;
+    return '<div class="zona' + (on ? " acesa" : "") + '">' + (on && acao ? '<span class="acao">' + acao + "</span>" : "") + (titulo ? "<h5>" + titulo + "</h5>" : "") + corpo + "</div>";
+  }
+  function lojaMini(s) {
+    var e = s.e, prod = e.qtd * 100, frete = e.frete ? 20 : 0, total = prod + frete - e.desc;
+    var errA = s.erro ? '<span class="marca-erro">' : "", errF = s.erro ? "</span>" : "";
+    var produto = zona("produto", s.foco, s.acao, "", '<div class="prod-mini"><div class="foto" aria-hidden="true">💡</div><b>Luminária de mesa Aurora</b><span class="pr">R$ 100,00</span><span class="bt-mini">Adicionar ao carrinho</span></div>');
+    var carrinho = zona("carrinho", s.foco, s.acao, "Seu carrinho", e.qtd ? '<div class="linha-mini"><span>Luminária Aurora × ' + e.qtd + "</span><span>" + brl(prod) + '</span></div><span class="lnk-mini">Esvaziar carrinho</span>' : '<span class="vazio-mini">Seu carrinho está vazio.</span>');
+    var entrega = zona("entrega", s.foco, s.acao, "Entrega",
+      '<div class="radio-mini"><span>Econômica</span><span>R$ 5,00</span></div><div class="radio-mini' + (e.frete === "padrao" ? " on" : "") + '"><span>Padrão</span><span>R$ 20,00</span></div><div class="radio-mini"><span>Expressa</span><span>R$ 30,00</span></div>');
+    var cupom = zona("cupom", s.foco, s.acao, "Cupom de desconto",
+      '<div class="campo-mini"><span class="inp' + (e.cupom ? "" : " ph") + '">' + (e.cupom || "Digite o código") + '</span><span class="bt-mini sec">Aplicar</span></div>' + (e.msg ? '<span class="msg-mini">' + e.msg + "</span>" : ""));
+    var resumo = zona("resumo", s.foco, s.acao, "Resumo do pedido",
+      '<div class="linha-mini"><span class="s">Produtos</span><span>' + brl(prod) + "</span></div>" +
+      '<div class="linha-mini"><span class="s">Desconto</span><span class="desc-mini">' + (e.desc ? errA + "− " + brl(e.desc) + errF : brl(0)) + "</span></div>" +
+      '<div class="linha-mini"><span class="s">Frete</span><span>' + (e.frete ? brl(frete) : "—") + "</span></div>" +
+      '<div class="linha-mini total-mini"><span>Total</span><span>' + (e.desc ? errA + brl(total) + errF : brl(total)) + "</span></div>");
+    return '<div class="topo-mini"><b>Vitrine</b><span>homologação</span></div>' + produto + '<div class="col-dir">' + carrinho + entrega + cupom + resumo + "</div>";
+  }
+  var c1 = 0, c1p = $("c1-pontos");
+  C1.forEach(function (s, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = i + 1; b.setAttribute("aria-label", "Passo " + (i + 1) + ": " + s.t);
+    b.addEventListener("click", function () { c1 = i; c1r(); });
+    c1p.appendChild(b);
+  });
+  function c1r() {
+    var s = C1[c1];
+    Array.prototype.forEach.call(c1p.children, function (b, i) { b.className = i === c1 ? "atual" : i < c1 ? "feito" : ""; });
+    $("c1-cont").textContent = "Passo " + (c1 + 1) + " de " + C1.length;
+    $("c1-tit").textContent = s.t;
+    $("c1-explica").innerHTML = s.a;
+    var loja = $("c1-loja");
+    loja.innerHTML = lojaMini(s);
+    loja.classList.toggle("focada", s.foco !== "todas");
+    $("c1-tela").innerHTML = s.comp
+      ? '<table class="comp-mini"><thead><tr><th></th><th>Esperado</th><th>Na tela</th></tr></thead><tbody><tr><td>Desconto</td><td>R$ 20,00</td><td class="x">R$ 22,00</td></tr><tr><td>Total</td><td>R$ 200,00</td><td class="x">R$ 198,00</td></tr></tbody></table><p style="margin-top:8px"><span class="tag x">Falhou</span> <span style="color:var(--tinta-2);font-size:.92rem">R3, CA1</span></p>'
+      : '<p class="tela"><span style="color:var(--tinta-3)">O que ele leu: </span>' + esc(s.leu) + "</p>";
+    $("c1-voltar").disabled = c1 === 0;
+    $("c1-avancar").disabled = c1 === C1.length - 1;
+  }
+  $("c1-voltar").addEventListener("click", function () { if (c1 > 0) { c1--; c1r(); } });
+  $("c1-avancar").addEventListener("click", function () { if (c1 < C1.length - 1) { c1++; c1r(); } });
+  c1r();
+
+  /* Bancada 2 */
+  var PD = [
+    { k: "papel", t: "Papel", d: "quem testa e que ambiente é", sem: "Sem o papel, ele não sabe que é homologação nem de que ponto de vista olhar. Pode hesitar diante de um checkout, achando que é uma compra de verdade." },
+    { k: "contexto", t: "Contexto", d: "a US-01, única fonte de regra", sem: "Sem a história, ele não tem oráculo. Só consegue dizer o que a tela mostrou; se está certo, ele completa com o que é comum em loja online, como no encontro 1." },
+    { k: "tarefa", t: "Tarefa", d: "os casos, com passos e esperado", sem: "Sem os casos, “teste o cupom” vira exploração livre: ele escolhe o que testar, quantas vezes e com que valores. Cada execução testa outra coisa." },
+    { k: "restricao", t: "Restrição", d: "o que fazer com o que não está definido", sem: "Sem a restrição, o CT05 tende a sair “Falhou”: o esperado do caso foi suposto, e nada diz ao Claude para separar lacuna de defeito." },
+    { k: "aceite", t: "Aceite", d: "a tabela e o que copiar da tela", sem: "Sem o formato, o relatório vem em texto corrido e sem os valores obtidos. Conferir custa quase o mesmo que executar de novo." }
+  ];
+  var pdSel = { papel: true, contexto: true, tarefa: true, restricao: true, aceite: true };
+  var pdBox = $("pd-partes");
+  PD.forEach(function (p) {
+    var l = document.createElement("label");
+    l.className = "item-j";
+    l.innerHTML = '<input type="checkbox" id="pd-' + p.k + '" checked><span><b>' + p.t + '</b>' + p.d + '</span>';
+    l.querySelector("input").addEventListener("change", function (e) { pdSel[p.k] = e.target.checked; pdR(); });
+    pdBox.appendChild(l);
+  });
+  function pdR() {
+    var faltam = PD.filter(function (p) { return !pdSel[p.k]; });
+    $("pd-explica").innerHTML = faltam.length
+      ? faltam.map(function (p) { return "<b>Sem " + p.t.toLowerCase() + ".</b> " + p.sem; }).join("<br>")
+      : "<b>As cinco partes estão no pedido.</b> O Claude sabe onde está, qual é a régua, o que executar, o que fazer com a dúvida e como devolver o resultado. Esse é o pedido curto da demonstração.";
+    $("pd-texto").textContent = montar(CURTO, pdSel);
+    $("pd-aviso").textContent = "";
+  }
+  $("pd-copiar").addEventListener("click", function () { copiar(montar(CURTO, pdSel), $("pd-aviso")); });
+  pdR();
+
+  /* Demonstração */
+  $("dm-completo").textContent = montar(COMPLETO);
+  document.querySelectorAll("[data-copiar]").forEach(function (b) {
+    b.addEventListener("click", function () { copiar(montar(b.dataset.copiar === "curto" ? CURTO : COMPLETO), $("dm-aviso")); });
+  });
+
+  /* Bancada 3 */
+  var REF = [
+    { id: "CT01", st: "x", rot: "Falhou", esp: "Desconto R$ 20,00 · total R$ 200,00", tela: "Cupom BEMVINDO10 aplicado: 10% de desconto. · Desconto − R$ 22,00 · Total R$ 198,00", porque: "O desconto é 10% de R$ 220,00: o frete entrou na base. Contraria a R3 e o CA1. É o BUG-101 da triagem do encontro 2." },
+    { id: "CT02", st: "x", rot: "Falhou", esp: "Cupom recusado · total R$ 45,00", tela: "Cupom MINIMO50 aplicado: R$ 10,00 de desconto. · Desconto − R$ 10,00 · Total R$ 35,00", porque: "O cupom foi aceito num pedido abaixo do mínimo de R$ 50,00, com ou sem frete. Contraria a R5. É o BUG-109." },
+    { id: "CT03", st: "x", rot: "Falhou", esp: "Mensagem “Cupom expirado” · total R$ 120,00", tela: "Cupon expirado · Desconto R$ 0,00 · Total R$ 120,00", porque: "A recusa e o total estão certos; o texto não. A R4 fixa a mensagem “Cupom expirado”. É o BUG-105. Repare se o Claude percebe a diferença de uma letra." },
+    { id: "CT04", st: "s", rot: "Passou", esp: "DESC30 substitui BEMVINDO10 · desconto R$ 30,00 · total R$ 190,00", tela: "Cupom DESC30 aplicado: R$ 30,00 de desconto. Ele substituiu o cupom BEMVINDO10. · Desconto − R$ 30,00 · Total R$ 190,00", porque: "A troca funciona como o CA3 pede. Antes da troca, com BEMVINDO10, a tela mostra desconto de R$ 22,00: o mesmo defeito do CT01, visto fora do que este caso testa." },
+    { id: "CT05", st: "i", rot: "Lacuna", esp: "Cupom aceito, como BEMVINDO10", tela: "Cupom inválido · Desconto R$ 0,00 · Total R$ 120,00", porque: "A US-01 não diz se o código diferencia maiúsculas de minúsculas. O esperado do caso foi suposto. Pela restrição do pedido, vira pergunta ao PO, não falha. É o BUG-102, que no encontro 2 também saiu como lacuna." },
+    { id: "CT06", st: "s", rot: "Passou", esp: "Desconto R$ 10,00 · total R$ 110,00", tela: "Cupom MINIMO50 aplicado: R$ 10,00 de desconto. · Desconto − R$ 10,00 · Total R$ 110,00", porque: "Cupom de valor fixo, acima do mínimo, aplicado só sobre os produtos. Funciona como a R2 e a R3 pedem." }
+  ];
+  var rfL = $("rf-lista");
+  function rfR(i) {
+    Array.prototype.forEach.call(rfL.children, function (b, j) { b.setAttribute("aria-selected", j === i ? "true" : "false"); });
+    var r = REF[i];
+    $("rf-detalhe").innerHTML = '<p style="display:flex;gap:10px;align-items:center"><strong style="font-family:var(--f-display);font-size:1.1rem;color:var(--tinta)">' + r.id + '</strong><span class="tag ' + r.st + '">' + r.rot + '</span></p>' +
+      "<dl><dt>Esperado</dt><dd>" + esc(r.esp) + "</dd><dt>Na tela</dt><dd><span class=\"tela\" style=\"display:block\">" + esc(r.tela) + "</span></dd><dt>Por quê</dt><dd>" + esc(r.porque) + "</dd></dl>";
+  }
+  REF.forEach(function (r, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.setAttribute("role", "tab");
+    b.innerHTML = "<b>" + r.id + "</b><span>" + esc(r.esp) + '</span><span class="tag ' + r.st + '">' + r.rot + "</span>";
+    b.addEventListener("click", function () { rfR(i); });
+    rfL.appendChild(b);
+  });
+  rfR(0);
+})();
+</script>
